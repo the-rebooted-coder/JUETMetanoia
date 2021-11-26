@@ -22,9 +22,7 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-        <service
-            android:name="RefreshService"
-            android:exported="false" />
+
         <activity android:name=".Login"/>
         <activity android:name=".SplashScreen">
             <intent-filter>

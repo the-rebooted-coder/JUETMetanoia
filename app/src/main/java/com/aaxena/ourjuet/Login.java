@@ -20,7 +20,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     EditText mEnrollment;
     EditText mPassword,mPrefferredPercentage, mDob;
     Button mLogin;
-    LoginViewModel mLoginViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +29,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     }
 
     private void init() {
-        mLoginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
         mEnrollment = findViewById(R.id.enrNumber);
         mPassword = findViewById(R.id.password);
         mDob = findViewById(R.id.dob);
@@ -60,52 +58,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         }
         return true;
     }
-    @Override
-    public void onClick(View view) {
-        if (view == mLogin && validate()){
 
-            mLoginViewModel.loginUser(mEnrollment.getText().toString(),mPassword.getText().toString(), mDob.getText().toString()).observe(this,status -> {
-                if (status != null) {
-                    switch (status){
-                        case LOADING:
-                            showProgress();
-                            break;
-                        case SUCCESS:
-                            Toast.makeText(this, "You just checked-in!", Toast.LENGTH_SHORT).show();
-                            vibrateDeviceSuccess();
-                      //      Intent refresh = new Intent(this,RefreshService.class);
-                      //      refresh.putExtra("manual",true);
-                      //      ActivityCompat.startForegroundService(this,refresh);
-                      //      Intent intent = new Intent(this,DrawerActivity.class);
-                      //      startActivity(intent);
-                      //      finish();
-                            dismissProgress();
-                            break;
-                        case WRONG_PASSWORD:
-                            Toast.makeText(this, "Invalid Credentials", Toast.LENGTH_SHORT).show();
-                            dismissProgress();
-                            vibrateDeviceError();
-                            break;
-                        case NO_INTERNET:
-                            Toast.makeText(this, "No Internet", Toast.LENGTH_SHORT).show();
-                            dismissProgress();
-                            vibrateDeviceError();
-                            break;
-                        case WEBKIOSK_DOWN:
-                            Toast.makeText(this, "The JUET Servers are Not Responding", Toast.LENGTH_SHORT).show();
-                            dismissProgress();
-                            vibrateDeviceError();
-                            break;
-                        case FAILED:
-                            Toast.makeText(this, "A Wild Wild Error Just Occurred!", Toast.LENGTH_SHORT).show();
-                            dismissProgress();
-                            vibrateDeviceError();
-                            break;
-                    }
-                }
-            });
-        }
-    }
     private void vibrateDeviceError() {
         Vibrator v3 = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         long[] pattern = {0,25,50,35,100};
@@ -138,5 +91,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     void dismissProgress(){
         if (dialog!=null && dialog.isShowing())
             dialog.dismiss();
+    }
+
+    @Override
+    public void onClick(View view) {
+
     }
 }
