@@ -20,36 +20,25 @@ class Login: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
     }
 
 
     fun connect(view: View) {
-
         var loginform: Elements? = null
         GlobalScope.launch(Dispatchers.IO) {
 
             try {
-
                 val doc: Document = Jsoup.connect("https://webkiosk.juet.ac.in").get()
                 var id = doc.title()
-                Log.e("success", "${id.toString()}")
+                Log.d("success", "${id.toString()}")
                 loginform = doc.getElementsByClass("noselect")
-                Log.e("sucess", "$loginform")
+                Log.d("sucess", "$loginform")
                 captch= loginform.toString().substring(32,37)
-                Log.e("sucess", "$loginform,${captch.length}")
-
-
+                Log.d("sucess", "$loginform,${captch.length}")
             } catch (e: Exception) {
-
                 Log.e("er", "$e=.toString())")
             }}
-            captcha.text = captch
-             Toast.makeText(this, captch+"kuch bhi", Toast.LENGTH_SHORT).show()
-
-
-
-
+        captcha.text = captch
     }
 }
 
