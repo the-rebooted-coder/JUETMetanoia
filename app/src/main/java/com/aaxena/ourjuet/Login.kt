@@ -4,15 +4,26 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import java.io.IOException
+import java.net.CacheResponse
+import kotlin.math.log
 
-var captch = ""
+
+
+lateinit var document: Document
+lateinit var mapCookies: Map<String, String>
+lateinit var response: Elements
+lateinit var captch :String
 lateinit var mEnrollment: EditText
 lateinit var mPassword: EditText
 lateinit var mDob: EditText
@@ -28,22 +39,69 @@ class Login: AppCompatActivity() {
 
 
     fun connect(view: View) {
+
         if (validate()){
             var loginform: Elements? = null
-            GlobalScope.launch(Dispatchers.IO) {
+            val loginscope = GlobalScope.launch(Dispatchers.IO) {
+
+
                 try {
+
                     val doc: Document = Jsoup.connect("https://webkiosk.juet.ac.in").get()
+
                     var id = doc.title()
                     Log.d("success", "$id")
+
                     loginform = doc.getElementsByClass("noselect")
                     Log.d("sucess", "$loginform")
+
                     captch= loginform.toString().substring(32,37)
-                    Log.d("sucess", "$loginform,${captch.length}")
+                    Log.d("sucess", captch)
+
+
                 } catch (e: Exception) {
                     Log.e("er", "$e=.toString())")
+
                 }}
+
+                     val form_filled = GlobalScope.launch (Dispatchers.IO){
+                    loginscope.join()
+
+                         val response: Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in")
+                                 .method(Connection.Method.POST)
+                                 .data("MemberCode", mEnrollment.text.toString())
+                                 .data("DATE1", mDob.text.toString())
+                                 .data("Password", mPassword.text.toString())
+                                 .data("txtcap", captch)
+                                 .followRedirects(true)
+                                 .execute()
+
+                         //parse the document from response
+                       document  = response.parse()
+
+                         //get cookies
+                         mapCookies = response.cookies()
+
+
+
+//                    var response:Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in").data("MemberCode", mEnrollment.text.toString(),
+//                            "DATE1", mDob.text.toString(),"Password", mPassword.text.toString(),"txtcap", captch).method(Connection.Method.POST).execute()
+
+                }
+                       GlobalScope.launch(Dispatchers.Main){
+                           form_filled.join()
+                           Log.e("Successful", mapCookies.toString().substring(0,10))
+                           Toast.makeText(this@Login,"Login Succesful = $mapCookies",Toast.LENGTH_SHORT).show()
+                       }
+
+
+
         }
     }
+}
+fun test(){
+
+
 }
 
     fun validate(): Boolean {
