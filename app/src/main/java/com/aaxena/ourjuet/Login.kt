@@ -27,6 +27,8 @@ lateinit var captch :String
 lateinit var mEnrollment: EditText
 lateinit var mPassword: EditText
 lateinit var mDob: EditText
+lateinit var trygetcookie:Connection.Response
+var cookies:Map<String, String>? = null
 
 class Login: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +48,11 @@ class Login: AppCompatActivity() {
 
 
                 try {
+                    trygetcookie = Jsoup.connect("https://webkiosk.juet.ac.in")
+                        .method(Connection.Method.GET)
+                        .execute()
 
+                     cookies= trygetcookie.cookies()
                     val doc: Document = Jsoup.connect("https://webkiosk.juet.ac.in").get()
 
                     var id = doc.title()
@@ -67,20 +73,31 @@ class Login: AppCompatActivity() {
                      val form_filled = GlobalScope.launch (Dispatchers.IO){
                     loginscope.join()
 
-                         val response: Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in")
+
+                         val response: Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in/StudentFiles/StudentPage.jsp")
+                             .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (XHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36")
+                             .referrer("https://webkiosk.juet.ac.in")
                                  .method(Connection.Method.POST)
                                  .data("MemberCode", mEnrollment.text.toString())
                                  .data("DATE1", mDob.text.toString())
                                  .data("Password", mPassword.text.toString())
                                  .data("txtcap", captch)
+                                 .cookies(cookies)
                                  .followRedirects(true)
                                  .execute()
 
                          //parse the document from response
                        document  = response.parse()
 
+
+
+
                          //get cookies
                          mapCookies = response.cookies()
+
+
+
+
 
 
 
@@ -90,8 +107,11 @@ class Login: AppCompatActivity() {
                 }
                        GlobalScope.launch(Dispatchers.Main){
                            form_filled.join()
-                           Log.e("Successful", mapCookies.toString().substring(0,10))
-                           Toast.makeText(this@Login,"Login Succesful = $mapCookies",Toast.LENGTH_SHORT).show()
+                           Log.e("suc", document.baseUri())
+
+//                           Log.e("Successful", mapCookies.toString().substring(0,10))
+                           Toast.makeText(this@Login, document.getElementById("table-1").toString(),Toast.LENGTH_SHORT).show()
+
                        }
 
 
