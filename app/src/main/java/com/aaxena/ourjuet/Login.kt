@@ -1,7 +1,9 @@
 package com.aaxena.ourjuet
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.util.Pair
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -19,6 +21,7 @@ import java.net.CacheResponse
 import kotlin.math.log
 
 
+var res: Connection.Response? = null
 
 lateinit var document: Document
 lateinit var mapCookies: Map<String, String>
@@ -42,7 +45,28 @@ class Login: AppCompatActivity() {
 
     fun connect(view: View) {
 
+
         if (validate()){
+           val shrey = GlobalScope.launch(Dispatchers.IO) {
+                var res1: Connection.Response? = null
+                res1 = Jsoup
+                        .connect("https://webkiosk.juet.ac.in")
+                        .method(Connection.Method.GET)
+                        .execute()
+                val doc = res1.parse()
+                var captcha: String? = ""
+                try {
+                    captcha = doc.select(".noselect").first().text()
+                } catch (ignored: java.lang.Exception) {
+                }
+                res = Jsoup
+                        .connect("https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp")
+                        .cookies(res1.cookies())
+                        .data("txtInst", "Institute", "InstCode", "JUET", "x", "", "txtuType", "Member+Type", "UserType", "S", "txtCode", "Enrollment+No", "MemberCode", mEnrollment.text.toString(), "DOB", "DOB", "DATE1", mDob.text.toString(), "txtPin", "Password%2FPin", "Password", mPassword.text.toString(), "txtCodecaptcha", "Enter Captcha", "txtcap", captcha, "BTNSubmit", "Submit"
+                        )
+                        .method(Connection.Method.POST)
+                        .execute()}
+            /*
             var loginform: Elements? = null
             val loginscope = GlobalScope.launch(Dispatchers.IO) {
 
@@ -72,8 +96,7 @@ class Login: AppCompatActivity() {
 
                      val form_filled = GlobalScope.launch (Dispatchers.IO){
                     loginscope.join()
-
-
+                         /*
                          val response: Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in/StudentFiles/StudentPage.jsp")
                              .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (XHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36")
                              .referrer("https://webkiosk.juet.ac.in")
@@ -85,15 +108,27 @@ class Login: AppCompatActivity() {
                                  .cookies(cookies)
                                  .followRedirects(true)
                                  .execute()
+                         document  = response.parse()
+//
+//
+//
+//
+//                         //get cookies
+//                         mapCookies = response.cookies()
+
+                          */
+                          val LOGIN_URL =  "https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp"
+
+                         res = Jsoup
+                                 .connect(LOGIN_URL)
+                                 .cookies(cookies)
+                                 .data("txtInst", "Institute", "InstCode", "JUET", "x", "", "txtuType", "Member+Type", "UserType", "S", "txtCode", "Enrollment+No", "MemberCode", mEnrollment.text.toString(), "DOB", "DOB", "DATE1", mDob.text.toString(), "txtPin", "Password%2FPin", "Password", mPassword.text.toString(), "txtCodecaptcha", "Enter Captcha", "txtcap", captch, "BTNSubmit", "Submit"
+                                 )
+                                 .method(Connection.Method.POST)
+                                 .execute()
 
                          //parse the document from response
-                       document  = response.parse()
-
-
-
-
-                         //get cookies
-                         mapCookies = response.cookies()
+//
 
 
 
@@ -105,12 +140,19 @@ class Login: AppCompatActivity() {
 //                            "DATE1", mDob.text.toString(),"Password", mPassword.text.toString(),"txtcap", captch).method(Connection.Method.POST).execute()
 
                 }
-                       GlobalScope.launch(Dispatchers.Main){
-                           form_filled.join()
-                           Log.e("suc", document.baseUri())
 
-//                           Log.e("Successful", mapCookies.toString().substring(0,10))
-                           Toast.makeText(this@Login, document.getElementById("table-1").toString(),Toast.LENGTH_SHORT).show()
+             */
+                       GlobalScope.launch(Dispatchers.Main){
+                           shrey.join()
+//                           Log.e("suc", document.baseUri())
+                                try {
+                                    Log.e("Successful", res.toString())
+                                    Toast.makeText(this@Login, res.toString(),Toast.LENGTH_SHORT).show()
+                                }catch (e: Exception) {
+                                    Log.e("er", "$e=.toString())")
+
+                                }
+
 
                        }
 
