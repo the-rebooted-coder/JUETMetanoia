@@ -3,26 +3,26 @@ package com.aaxena.ourjuet
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.util.Pair
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
-import java.io.IOException
-import java.net.CacheResponse
-import kotlin.math.log
 
 
+var ashu:Pair<Connection.Response?,Connection.Response?>? = null
+lateinit var  shrey:Job
+var res1: Connection.Response? = null
+var captcha: String? = ""
 var res: Connection.Response? = null
-
+var res_doc:Document? = null
 lateinit var document: Document
 lateinit var mapCookies: Map<String, String>
 lateinit var response: Elements
@@ -44,28 +44,66 @@ class Login: AppCompatActivity() {
 
 
     fun connect(view: View) {
+          GlobalScope.launch(Dispatchers.IO) {
+               ashu = login(this@Login)}
+/*
+        if (validate()) {
+              login(this)
 
-
-        if (validate()){
-           val shrey = GlobalScope.launch(Dispatchers.IO) {
-                var res1: Connection.Response? = null
-                res1 = Jsoup
+            shrey = GlobalScope.launch(Dispatchers.IO) {
+                val getCookies = GlobalScope.launch(Dispatchers.IO) {
+                    res1 = Jsoup
                         .connect("https://webkiosk.juet.ac.in")
                         .method(Connection.Method.GET)
                         .execute()
-                val doc = res1.parse()
-                var captcha: String? = ""
-                try {
-                    captcha = doc.select(".noselect").first().text()
-                } catch (ignored: java.lang.Exception) {
+                    val doc = res1!!.parse()
+
+                    try {
+                        captcha = doc.select(".noselect").first().text()
+                    } catch (ignored: java.lang.Exception) {
+                    }
                 }
-                res = Jsoup
+                GlobalScope.launch(Dispatchers.IO) {
+                    getCookies.join()
+                    res = Jsoup
                         .connect("https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp")
-                        .cookies(res1.cookies())
-                        .data("txtInst", "Institute", "InstCode", "JUET", "x", "", "txtuType", "Member+Type", "UserType", "S", "txtCode", "Enrollment+No", "MemberCode", mEnrollment.text.toString(), "DOB", "DOB", "DATE1", mDob.text.toString(), "txtPin", "Password%2FPin", "Password", mPassword.text.toString(), "txtCodecaptcha", "Enter Captcha", "txtcap", captcha, "BTNSubmit", "Submit"
+                        .cookies(res1!!.cookies())
+                        .data(
+                            "txtInst",
+                            "Institute",
+                            "InstCode",
+                            "JUET",
+                            "x",
+                            "",
+                            "txtuType",
+                            "Member+Type",
+                            "UserType",
+                            "S",
+                            "txtCode",
+                            "Enrollment+No",
+                            "MemberCode",
+                            mEnrollment.text.toString(),
+                            "DOB",
+                            "DOB",
+                            "DATE1",
+                            mDob.text.toString(),
+                            "txtPin",
+                            "Password%2FPin",
+                            "Password",
+                            mPassword.text.toString(),
+                            "txtCodecaptcha",
+                            "Enter Captcha",
+                            "txtcap",
+                            captcha,
+                            "BTNSubmit",
+                            "Submit"
                         )
                         .method(Connection.Method.POST)
-                        .execute()}
+                        .execute()
+                }
+
+                res_doc = res?.parse()
+            }
             /*
             var loginform: Elements? = null
             val loginscope = GlobalScope.launch(Dispatchers.IO) {
@@ -142,46 +180,114 @@ class Login: AppCompatActivity() {
                 }
 
              */
-                       GlobalScope.launch(Dispatchers.Main){
-                           shrey.join()
+            GlobalScope.launch(Dispatchers.Main) {
+                shrey.join()
 //                           Log.e("suc", document.baseUri())
-                                try {
-                                    Log.e("Successful", res.toString())
-                                    Toast.makeText(this@Login, res.toString(),Toast.LENGTH_SHORT).show()
-                                }catch (e: Exception) {
-                                    Log.e("er", "$e=.toString())")
+                try {
+                    Log.e("Successful", res_doc!!.title())
+                    Toast.makeText(this@Login, res_doc!!.title(), Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.e("Successful", res.toString())
+                    Log.e("er", "$e")
 
-                                }
+                }
 
 
-                       }
-
+            }
 
 
         }
+        */
+
+
+
+        try {
+            Log.i("suc",ashu!!.second!!.body().toString())
+
+        }catch (e:Exception){
+            Log.i("e","$e" )
+
+        }
+
     }
-}
-fun test(){
+
+    fun test() {
 
 
-}
+    }
 
     fun validate(): Boolean {
         if (mEnrollment.text.toString().isEmpty()) {
             mEnrollment.error = "Enrollment Number is Required"
-           // vibrateDeviceError()
+            // vibrateDeviceError()
             return false
         } else if (mDob.text.toString().isEmpty()) {
             mDob.error = "Date of Birth is Required"
-           // vibrateDeviceError()
+            // vibrateDeviceError()
             return false
         } else if (mPassword.text.toString().isEmpty()) {
             mPassword.error = "Password is Required"
-           // vibrateDeviceError()
+            // vibrateDeviceError()
             return false
         }
         return true
     }
+    fun login(
+        mContext: Context?,
+//        user: String?,
+//        dob: String?,
+//        pass: String?
+    ): Pair<Connection.Response?, Connection.Response?>? {
+        var res1: Connection.Response? = null
+        var res: Connection.Response? = null
+        res1 = Jsoup
+            .connect("https://webkiosk.juet.ac.in")
+            .method(Connection.Method.GET)
+            .execute()
+        val doc = res1.parse()
+        var captcha: String? = ""
+        try {
+            captcha = doc.select(".noselect").first().text()
+        } catch (ignored: java.lang.Exception) {
+        }
+        res = Jsoup
+            .connect("https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp")
+            .cookies(res1.cookies())
+            .data(
+                "txtInst",
+                "Institute",
+                "InstCode",
+                "JUET",
+                "x",
+                "",
+                "txtuType",
+                "Member+Type",
+                "UserType",
+                "S",
+                "txtCode",
+                "Enrollment+No",
+                "MemberCode",
+                mEnrollment.text.toString(),
+                "DOB",
+                "DOB",
+                "DATE1",
+               mDob.text.toString(),
+                "txtPin",
+                "Password%2FPin",
+                "Password",
+                mPassword.text.toString(),
+                "txtCodecaptcha",
+                "Enter Captcha",
+                "txtcap",
+                captcha,
+                "BTNSubmit",
+                "Submit"
+            )
+            .method(Connection.Method.POST)
+            .execute()
+        return Pair(res1, res)
+    }
+}
 
 /*
     private fun vibrateDeviceError() {
