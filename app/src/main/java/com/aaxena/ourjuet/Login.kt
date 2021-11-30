@@ -1,7 +1,11 @@
 package com.aaxena.ourjuet
 
 import android.content.Context
+import android.content.Context.VIBRATOR_SERVICE
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.View
 import android.widget.EditText
@@ -46,160 +50,6 @@ class Login: AppCompatActivity() {
     fun connect(view: View) {
           GlobalScope.launch(Dispatchers.IO) {
                ashu = login(this@Login)}
-/*
-        if (validate()) {
-              login(this)
-
-            shrey = GlobalScope.launch(Dispatchers.IO) {
-                val getCookies = GlobalScope.launch(Dispatchers.IO) {
-                    res1 = Jsoup
-                        .connect("https://webkiosk.juet.ac.in")
-                        .method(Connection.Method.GET)
-                        .execute()
-                    val doc = res1!!.parse()
-
-                    try {
-                        captcha = doc.select(".noselect").first().text()
-                    } catch (ignored: java.lang.Exception) {
-                    }
-                }
-                GlobalScope.launch(Dispatchers.IO) {
-                    getCookies.join()
-                    res = Jsoup
-                        .connect("https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp")
-                        .cookies(res1!!.cookies())
-                        .data(
-                            "txtInst",
-                            "Institute",
-                            "InstCode",
-                            "JUET",
-                            "x",
-                            "",
-                            "txtuType",
-                            "Member+Type",
-                            "UserType",
-                            "S",
-                            "txtCode",
-                            "Enrollment+No",
-                            "MemberCode",
-                            mEnrollment.text.toString(),
-                            "DOB",
-                            "DOB",
-                            "DATE1",
-                            mDob.text.toString(),
-                            "txtPin",
-                            "Password%2FPin",
-                            "Password",
-                            mPassword.text.toString(),
-                            "txtCodecaptcha",
-                            "Enter Captcha",
-                            "txtcap",
-                            captcha,
-                            "BTNSubmit",
-                            "Submit"
-                        )
-                        .method(Connection.Method.POST)
-                        .execute()
-                }
-
-                res_doc = res?.parse()
-            }
-            /*
-            var loginform: Elements? = null
-            val loginscope = GlobalScope.launch(Dispatchers.IO) {
-
-
-                try {
-                    trygetcookie = Jsoup.connect("https://webkiosk.juet.ac.in")
-                        .method(Connection.Method.GET)
-                        .execute()
-
-                     cookies= trygetcookie.cookies()
-                    val doc: Document = Jsoup.connect("https://webkiosk.juet.ac.in").get()
-
-                    var id = doc.title()
-                    Log.d("success", "$id")
-
-                    loginform = doc.getElementsByClass("noselect")
-                    Log.d("sucess", "$loginform")
-
-                    captch= loginform.toString().substring(32,37)
-                    Log.d("sucess", captch)
-
-
-                } catch (e: Exception) {
-                    Log.e("er", "$e=.toString())")
-
-                }}
-
-                     val form_filled = GlobalScope.launch (Dispatchers.IO){
-                    loginscope.join()
-                         /*
-                         val response: Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in/StudentFiles/StudentPage.jsp")
-                             .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (XHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36")
-                             .referrer("https://webkiosk.juet.ac.in")
-                                 .method(Connection.Method.POST)
-                                 .data("MemberCode", mEnrollment.text.toString())
-                                 .data("DATE1", mDob.text.toString())
-                                 .data("Password", mPassword.text.toString())
-                                 .data("txtcap", captch)
-                                 .cookies(cookies)
-                                 .followRedirects(true)
-                                 .execute()
-                         document  = response.parse()
-//
-//
-//
-//
-//                         //get cookies
-//                         mapCookies = response.cookies()
-
-                          */
-                          val LOGIN_URL =  "https://webkiosk.juet.ac.in/CommonFiles/UserAction.jsp"
-
-                         res = Jsoup
-                                 .connect(LOGIN_URL)
-                                 .cookies(cookies)
-                                 .data("txtInst", "Institute", "InstCode", "JUET", "x", "", "txtuType", "Member+Type", "UserType", "S", "txtCode", "Enrollment+No", "MemberCode", mEnrollment.text.toString(), "DOB", "DOB", "DATE1", mDob.text.toString(), "txtPin", "Password%2FPin", "Password", mPassword.text.toString(), "txtCodecaptcha", "Enter Captcha", "txtcap", captch, "BTNSubmit", "Submit"
-                                 )
-                                 .method(Connection.Method.POST)
-                                 .execute()
-
-                         //parse the document from response
-//
-
-
-
-
-
-
-
-//                    var response:Connection.Response = Jsoup.connect("https://webkiosk.juet.ac.in").data("MemberCode", mEnrollment.text.toString(),
-//                            "DATE1", mDob.text.toString(),"Password", mPassword.text.toString(),"txtcap", captch).method(Connection.Method.POST).execute()
-
-                }
-
-             */
-            GlobalScope.launch(Dispatchers.Main) {
-                shrey.join()
-//                           Log.e("suc", document.baseUri())
-                try {
-                    Log.e("Successful", res_doc!!.title())
-                    Toast.makeText(this@Login, res_doc!!.title(), Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Log.e("Successful", res.toString())
-                    Log.e("er", "$e")
-
-                }
-
-
-            }
-
-
-        }
-        */
-
-
 
         try {
             Log.i("suc",ashu!!.second!!.body().toString())
@@ -289,9 +139,9 @@ class Login: AppCompatActivity() {
     }
 }
 
-/*
-    private fun vibrateDeviceError() {
-        val v3 = this.getSystemService(VIBRATOR_SERVICE) as Vibrator
+
+    private fun vibrateDeviceError(context: Context) {
+        val v3 = context.getSystemService(VIBRATOR_SERVICE) as Vibrator
         val pattern = longArrayOf(0, 25, 50, 35, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v3.vibrate(VibrationEffect.createWaveform(pattern, -1))
@@ -299,21 +149,3 @@ class Login: AppCompatActivity() {
             v3.vibrate(pattern, -1)
         }
     }
-
- */
-/*
-//    var dialog: ProgressDialog? = null
-//    fun showProgress() {
-//        dialog = ProgressDialog(this)
-//        dialog!!.setMessage("Logging In...")
-//        dialog!!.setProgressPercentFormat(null)
-//        dialog!!.setProgressNumberFormat(null)
-//        dialog!!.setCancelable(false)
-//        dialog!!.setCanceledOnTouchOutside(false)
-//        dialog!!.show()
-//    }
-//
-//    fun dismissProgress() {
-//        if (dialog != null && dialog!!.isShowing) dialog!!.dismiss()
-//    }
- */
