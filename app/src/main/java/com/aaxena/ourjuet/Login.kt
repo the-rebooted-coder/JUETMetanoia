@@ -28,7 +28,12 @@ var captcha: String? = ""
 var res: Connection.Response? = null
 var res_doc:Document? = null
 lateinit var document: Document
+var attd:Document? = null
+var attd_test:Document? = null
+var ATTENDENCE_LIST: String? = null
+lateinit var sahil_ash: Job
 lateinit var mapCookies: Map<String, String>
+const val JSOUP_TIMEOUT = 50 * 1000
 lateinit var response: Elements
 lateinit var captch :String
 lateinit var mEnrollment: EditText
@@ -48,11 +53,19 @@ class Login: AppCompatActivity() {
 
 
     fun connect(view: View) {
-          GlobalScope.launch(Dispatchers.IO) {
-               ashu = login(this@Login)}
+            sahil_ash = GlobalScope.launch(Dispatchers.IO) {
+               ashu = login(this@Login)
+               attd_test= test()
+          }
+
+         GlobalScope.launch(Dispatchers.IO) {
+             sahil_ash.join()
+            attd_test= test()
+        }
 
         try {
             Log.i("suc",ashu!!.second!!.body().toString())
+            Log.i("suc", attd_test!!.toString())
 
         }catch (e:Exception){
             Log.i("e","$e" )
@@ -61,9 +74,15 @@ class Login: AppCompatActivity() {
 
     }
 
-    fun test() {
-
-
+    suspend fun test(): Document? {
+        sahil_ash.join()
+        GlobalScope.launch(Dispatchers.IO) {   val connection = Jsoup
+                .connect("https://webkiosk.juet.ac.in/StudentFiles/Academic/StudentAttendanceList.jsp")
+                .timeout(JSOUP_TIMEOUT)
+                .cookies(res!!.cookies())
+                .method(Connection.Method.GET).execute()
+            attd = connection.parse() }
+        return attd
     }
 
     fun validate(): Boolean {
@@ -82,11 +101,9 @@ class Login: AppCompatActivity() {
         }
         return true
     }
+
     fun login(
         mContext: Context?,
-//        user: String?,
-//        dob: String?,
-//        pass: String?
     ): Pair<Connection.Response?, Connection.Response?>? {
         var res1: Connection.Response? = null
         var res: Connection.Response? = null
